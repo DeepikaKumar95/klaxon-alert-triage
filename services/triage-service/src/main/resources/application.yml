@@ -1,0 +1,56 @@
+server:
+  port: 8090
+
+spring:
+  application.name: triage-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/klaxon}
+    username: ${SPRING_DATASOURCE_USERNAME:klaxon}
+    password: ${SPRING_DATASOURCE_PASSWORD:klaxon}
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:19093}
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: triage
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    listener:
+      ack-mode: record
+
+klaxon:
+  topics:
+    raw: alerts.raw
+    triaged: alerts.triaged
+    partitions: 3
+  # Synthetic alert generator. Off by default so a reviewer opting in is a deliberate act.
+  # 15s keeps demand under the LLM budget below: each alert costs two calls (triage + embed).
+  generator:
+    enabled: ${KLAXON_GENERATOR_ENABLED:false}
+    interval-ms: 15000
+  llm:
+    # A missing key is not a startup failure: the service degrades to rule-based triage.
+    api-key: ${GEMINI_API_KEY:}
+    base-url: https://generativelanguage.googleapis.com/v1beta
+    chat-model: gemini-3.5-flash
+    embedding-model: gemini-embedding-001
+    embedding-dimensions: 768
+    timeout-ms: 20000
+    # Free tier is rate limited; these keep a burst of alerts from burning the quota.
+    max-requests-per-minute: 12
+    cache-ttl-minutes: 60
+
+management:
+  endpoints.web.exposure.include: health,info,metrics,prometheus
+  endpoint.health.probes.enabled: true
+
+logging:
+  level:
+    com.klaxon: INFO

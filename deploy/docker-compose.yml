@@ -1,0 +1,40 @@
+# Host ports are deliberately offset from the OrderDesk stack so both can run at once.
+#
+# The explicit project name matters: Compose otherwise names the project after the
+# directory holding this file, and every repo that calls that directory "deploy"
+# would share one project and tear down each other's containers.
+name: klaxon
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: klaxon
+      POSTGRES_USER: klaxon
+      POSTGRES_PASSWORD: klaxon
+    ports: ["5433:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U klaxon -d klaxon"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redpanda:
+    image: redpandadata/redpanda:v24.2.7
+    command:
+      - redpanda start --smp 1 --memory 1G --overprovisioned --node-id 0
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19093
+    ports: ["19093:19092"]
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy:.*true'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  console:
+    image: redpandadata/console:v2.7.2
+    depends_on: [redpanda]
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+    ports: ["8086:8080"]
