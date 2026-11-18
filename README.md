@@ -14,10 +14,10 @@ anyone has the page open.
                                           triage-service  @KafkaListener
                                             │
                                             ├─ processed_events         idempotent: a redelivery is a no-op
-                                            ├─ Gemini 2.0 Flash         severity + category + hypothesis,
+                                            ├─ Gemini 3.5 Flash         severity + category + hypothesis,
                                             │                           constrained by a response schema
                                             ├─ RuleBasedTriage          used when the model is unavailable
-                                            ├─ text-embedding-004       ──► pgvector
+                                            ├─ gemini-embedding-001     ──► pgvector
                                             └─ nearest prior alert      "this looks like the one from Tuesday"
                                             │
                                             ▼   (after commit — never inside the transaction)
