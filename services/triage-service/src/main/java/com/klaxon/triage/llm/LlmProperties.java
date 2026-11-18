@@ -8,8 +8,8 @@ public class LlmProperties {
     /** Empty means "no key configured" — the service runs on rule-based triage instead of failing. */
     private String apiKey = "";
     private String baseUrl = "https://generativelanguage.googleapis.com/v1beta";
-    private String chatModel = "gemini-2.0-flash";
-    private String embeddingModel = "text-embedding-004";
+    private String chatModel = "gemini-3.5-flash";
+    private String embeddingModel = "gemini-embedding-001";
     private int embeddingDimensions = 768;
     private int timeoutMs = 20000;
     private int maxRequestsPerMinute = 12;
