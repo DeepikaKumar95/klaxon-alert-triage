@@ -7,6 +7,14 @@ incident by vector similarity, and pushes the verdict to a live Angular dashboar
 The AI is a **pipeline stage**, not a chat box. Alerts are triaged whether or not
 anyone has the page open.
 
+
+
+
+
+https://github.com/user-attachments/assets/a13b454c-659e-4bd3-bfe3-8424989ea2c3
+
+
+
 ```
  alert sources ──HTTP──►  POST /api/v1/alerts ──► Kafka: alerts.raw  (3 partitions, key = alertId)
  (or the built-in                                        │
